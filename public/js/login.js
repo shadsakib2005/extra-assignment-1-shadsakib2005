@@ -1,17 +1,10 @@
-(function setupFixationHelper() {
-  const params = new URLSearchParams(window.location.search);
-  const fixedSession = params.get("sid");
-
-  if (fixedSession) {
-    document.cookie = `sid=${fixedSession}; path=/`;
-  }
-})();
-
 document.getElementById("login-form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const formData = new FormData(event.currentTarget);
   const payload = Object.fromEntries(formData.entries());
+
+  const output = document.getElementById("login-output");
 
   try {
     const result = await api("/api/login", {
@@ -19,8 +12,11 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
       body: JSON.stringify(payload)
     });
 
-    writeJson("login-output", result);
+    // ✅ SAFE (no XSS)
+    output.textContent = JSON.stringify(result, null, 2);
+
   } catch (error) {
-    writeJson("login-output", { error: error.message });
+    // ✅ SAFE
+    output.textContent = JSON.stringify({ error: error.message }, null, 2);
   }
 });
